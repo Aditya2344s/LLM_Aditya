@@ -1,0 +1,55 @@
+name: ML Lambda Deployment by Aditya Singh
+on:
+  push:
+    branches:
+      - main
+      - development
+
+env:
+  AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+  AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+  AWS_DEFAULT_REGION: us-east-1
+
+jobs:
+  deploy-to-aws:
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ['3.9']
+        node-version: [18]
+        os: [ubuntu-latest]
+
+    runs-on: ${{ matrix.os }}
+    steps:
+      
+      - name: Checkout Code by Aditya Singh
+        uses: actions/checkout@v3
+
+      
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v3
+        with:
+          python-version: ${{ matrix.python-version }}
+          
+      
+      - name: Set up Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v3
+        with:
+          node-version: ${{ matrix.node-version }}
+
+      
+      - name: Install Serverless Framework
+        run: npm install -g serverless
+
+      
+      - name: Install Project Dependencies
+        run: npm ci
+
+      
+      - name: Deploy Project to AWS by Aditya Singh
+        run: sls deploy --stage development --verbose
+
+      
+      - name: Clean Up Artifacts
+        run: serverless remove --stage development --verbose
+        if: failure()
